@@ -30,7 +30,31 @@ func (ms *TMatchMapKey) GetInt32(source map[string]interface{}, key string) (int
 	}
 
 }
+func (ms *TMatchMapKey) GetInt64(source map[string]interface{}, key string) (int64, error) {
+	result, ok := source[ms.Data[key]]
+	if !ok {
+		return 0, fmt.Errorf("%s不存在", key)
+	}
+	if result == nil {
+		return 0, nil
+	}
+	switch v := result.(type) {
+	case int:
+		return int64(v), nil
+	case int8:
+		return int64(v), nil
+	case int16:
+		return int64(v), nil
+	case int32:
+		return int64(v), nil
+	case int64:
+		return v, nil
 
+	default:
+		return 0, fmt.Errorf("%s不是整数类型", key)
+	}
+
+}
 func (ms *TMatchMapKey) GetString(source map[string]interface{}, key string) (string, error) {
 	result, ok := source[ms.Data[key]]
 	if !ok {
