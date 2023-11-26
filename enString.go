@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
+	"os"
 	"sort"
 	"strings"
 	"unicode"
@@ -27,6 +28,15 @@ const (
 	PosValLeft
 	PosVal
 )
+
+// GetDefaultKey for encript key
+func GetDefaultKey() string {
+	result := os.Getenv("DEFAULT_KEY")
+	if result == "" {
+		result = "BBx0T9WGTzrsAbiTb3HO5HLi031SyyVX"
+	}
+	return result
+}
 
 // IndexOfByte 列出指定字节的全部位置
 func (str *TEnString) IndexOfByte(target byte) []int {
