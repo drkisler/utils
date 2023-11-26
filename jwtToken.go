@@ -67,6 +67,6 @@ func AuthMiddleware(c *gin.Context) {
 }
 
 func loadSecretKey() []byte {
-	secretKey := []byte(DefaultKey)
+	secretKey := []byte(GetDefaultKey())
 	return secretKey
 }

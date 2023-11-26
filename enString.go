@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"io"
 	"os"
@@ -19,8 +21,6 @@ type TEnString struct {
 	String string
 }
 type TChrPos = uint8
-
-var DefaultKey = "BBx0T9WGTzrsAbiTb3HO5HLi031SyyVX"
 
 const (
 	PosKeyLeft TChrPos = iota
@@ -375,7 +375,10 @@ func (str *TEnString) ToMapAny(split, quote string, compare []string) *map[strin
 	}
 	return &result
 }
-
+func (str *TEnString) MD5Str() string {
+	hash := md5.Sum([]byte(str.String))
+	return hex.EncodeToString(hash[:])
+}
 func (str *TEnString) Encrypt(key string) string {
 	// 转成字节数组
 	origData := []byte(str.String)
