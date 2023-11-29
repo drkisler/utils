@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 type TFilepath struct {
@@ -12,10 +13,16 @@ type TFilepath struct {
 }
 
 // InitFilePath 初始化文件目录,当前目录开始,目录分隔符为"/"
-func (fp *TFilepath) InitFilePath(parentPath, dir string, filePaths *map[string]string) error {
+func (fp *TFilepath) InitFilePath(parentPath, dirFlag string, filePaths *map[string]string) error {
 	var err error
-	fp.CurrentPath = parentPath
-	fp.DirFlag = dir
+	arr := strings.Split(parentPath, dirFlag)
+	if arr[len(arr)-1] == "" {
+		fp.CurrentPath = parentPath
+	} else {
+
+	}
+	fp.CurrentPath = parentPath + dirFlag
+	fp.DirFlag = dirFlag
 	checkFilePath := func(filePath string) error {
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
@@ -29,10 +36,10 @@ func (fp *TFilepath) InitFilePath(parentPath, dir string, filePaths *map[string]
 	fp.FilePaths = make(map[string]string)
 
 	for key, val := range *filePaths {
-		if err = checkFilePath(val); err != nil {
+		if err = checkFilePath(fp.CurrentPath + val); err != nil {
 			return err
 		}
-		fp.FilePaths[key] = val
+		fp.FilePaths[key] = fp.CurrentPath + val
 	}
 	return nil
 
