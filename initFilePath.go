@@ -19,9 +19,8 @@ func (fp *TFilepath) InitFilePath(parentPath, dirFlag string, filePaths *map[str
 	if arr[len(arr)-1] == "" {
 		fp.CurrentPath = parentPath
 	} else {
-
+		fp.CurrentPath = parentPath + dirFlag
 	}
-	fp.CurrentPath = parentPath + dirFlag
 	fp.DirFlag = dirFlag
 	checkFilePath := func(filePath string) error {
 		_, err = os.Stat(filePath)
