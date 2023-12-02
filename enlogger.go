@@ -18,6 +18,7 @@ var LogServ TLogService
 type EnLogger struct {
 	logger   *log.Logger
 	logFile  *os.File
+	logDate  string
 	filePath string
 	fileName string
 	lock     *sync.Mutex
@@ -27,15 +28,9 @@ type TLogService struct {
 }
 
 func NewLogger(filePath string) (*EnLogger, error) {
-	fileName := filePath + "log_" + time.Now().Format("20060102") + ".log"
-	logFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
-	if err != nil {
-		return nil, err
-	}
 	loger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-	loger.SetOutput(logFile)
 	lock := new(sync.Mutex)
-	return &EnLogger{loger, logFile, filePath, fileName, lock}, nil
+	return &EnLogger{loger, nil, "", filePath, "", lock}, nil
 }
 func (enLog *EnLogger) CloseLog() {
 	_ = enLog.logFile.Close()
@@ -45,12 +40,13 @@ func (enLog *EnLogger) newFile() {
 	enLog.fileName = enLog.filePath + "log_" + time.Now().Format("20060102") + ".log"
 	enLog.logFile, _ = os.OpenFile(enLog.fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
 	enLog.logger.SetOutput(enLog.logFile)
+	enLog.logDate = time.Now().Format("20060102")
 }
 
 func (enLog *EnLogger) WriteLog(v ...interface{}) {
 	enLog.lock.Lock()
 	defer enLog.lock.Unlock()
-	if enLog.fileName != time.Now().Format("20060102") {
+	if enLog.logDate != time.Now().Format("20060102") {
 		enLog.newFile()
 	}
 	enLog.logger.Println(v...)
