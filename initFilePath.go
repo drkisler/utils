@@ -9,19 +9,29 @@ import (
 type TFilepath struct {
 	CurrentPath string
 	DirFlag     string
-	FilePaths   map[string]string
+	FileDirs    *map[string]string
 }
 
-// InitFilePath 初始化文件目录,当前目录开始,目录分隔符为"/"
-func (fp *TFilepath) InitFilePath(parentPath, dirFlag string, filePaths *map[string]string) error {
-	var err error
-	arr := strings.Split(parentPath, dirFlag)
-	if arr[len(arr)-1] == "" {
-		fp.CurrentPath = parentPath
-	} else {
-		fp.CurrentPath = parentPath + dirFlag
+// NewFilePath get current path and os dir flag
+func NewFilePath() (*TFilepath, error) {
+	currentPath, err := os.Executable()
+	if err != nil {
+		return nil, err
 	}
-	fp.DirFlag = dirFlag
+	dirFlag := "/"
+	if strings.Contains(currentPath, "\\") {
+		dirFlag = "\\"
+	}
+	var enStr TEnString
+	enStr.Load(currentPath)
+	currentPath = enStr.CutFromLast(dirFlag) + dirFlag
+
+	return &TFilepath{currentPath, dirFlag, nil}, nil
+}
+
+func (fp *TFilepath) SetFileDir(fileDirs *map[string]string) error {
+	var err error
+	var fullPath string
 	checkFilePath := func(filePath string) error {
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
@@ -32,14 +42,22 @@ func (fp *TFilepath) InitFilePath(parentPath, dirFlag string, filePaths *map[str
 		}
 		return nil
 	}
-	fp.FilePaths = make(map[string]string)
-
-	for key, val := range *filePaths {
-		if err = checkFilePath(fp.CurrentPath + val); err != nil {
+	for key, val := range *fileDirs {
+		fullPath = fp.CurrentPath + val + fp.DirFlag
+		if err = checkFilePath(fullPath); err != nil {
 			return err
 		}
-		fp.FilePaths[key] = fp.CurrentPath + val
+		(*fileDirs)[key] = fullPath
 	}
+	fp.FileDirs = fileDirs
 	return nil
 
+}
+func (fp *TFilepath) GetFileDir(fileType string) (string, error) {
+	var fullPath string
+	var ok bool
+	if fullPath, ok = (*fp.FileDirs)[fileType]; ok {
+		return fullPath, nil
+	}
+	return "", fmt.Errorf("%s not exists", fileType)
 }
