@@ -1,7 +1,7 @@
 package utils
 
 type TRespDataSet struct {
-	Total   int         `json:"total,omitempty"`
+	Total   int         `json:"total"`
 	Fields  []string    `json:"fields,omitempty"`
 	ArrData interface{} `json:"list,omitempty"`
 }
